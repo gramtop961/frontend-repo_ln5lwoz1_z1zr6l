@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './components/Header'
 import LoginPanel from './components/LoginPanel'
 import CalendarWeek from './components/CalendarWeek'
@@ -12,7 +12,7 @@ export default function App() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [students, setStudents] = useState([])
-  const [settings, setSettings] = useState({ school_name: 'Autoscuola Missori' })
+  const [settings, setSettings] = useState({ school_name: 'Autoscuola Missori', guide_labels: { A: 'Notturna', B: 'Extraurbana', C: 'Autostrada' } })
 
   const loadSettings = async () => {
     try {
@@ -45,12 +45,9 @@ export default function App() {
       <Header schoolName={settings?.school_name} role={auth?.role} onLogout={logout} />
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {!auth && (
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="md:col-span-1"><LoginPanel onAuth={setAuth} /></div>
-            <div className="md:col-span-2">
-              <CalendarWeek token={null} role={null} onSelectSlot={()=>{}} />
-              <p className="text-sm text-gray-600 mt-3">Accedi come studente per prenotare. Gli slot liberi sono in verde, occupati in rosso, disabilitati in grigio.</p>
-            </div>
+          <div className="max-w-md mx-auto">
+            <LoginPanel onAuth={setAuth} />
+            <p className="text-center text-sm text-gray-600 mt-4">Accedi come amministratore o studente per visualizzare il calendario e prenotare.</p>
           </div>
         )}
 
@@ -60,7 +57,7 @@ export default function App() {
               <CalendarWeek token={auth.token} role={auth.role} onSelectSlot={setSelectedSlot} refreshKey={refreshKey} />
             </div>
             <div className="md:col-span-1 space-y-4">
-              <BookingPanel token={auth.token} role={auth.role} selectedSlot={selectedSlot} onBooked={onBooked} />
+              <BookingPanel token={auth.token} role={auth.role} selectedSlot={selectedSlot} onBooked={onBooked} guideLabels={settings?.guide_labels} />
               <div className="bg-white rounded-xl shadow p-4">
                 <h3 className="font-semibold mb-2">Regole prenotazione</h3>
                 <ul className="text-sm text-gray-600 list-disc ml-5 space-y-1">
@@ -76,7 +73,7 @@ export default function App() {
         {auth && auth.role === 'admin' && (
           <div className="space-y-4">
             <CalendarWeek token={auth.token} role={auth.role} onSelectSlot={setSelectedSlot} refreshKey={refreshKey} />
-            <BookingPanel token={auth.token} role={auth.role} selectedSlot={selectedSlot} onBooked={onBooked} students={students} />
+            <BookingPanel token={auth.token} role={auth.role} selectedSlot={selectedSlot} onBooked={onBooked} students={students} guideLabels={settings?.guide_labels} />
             <AdminPanel token={auth.token} refresh={refreshKey} onSettingsChange={setSettings} />
           </div>
         )}

@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 const API = import.meta.env.VITE_BACKEND_URL
 
-export default function BookingPanel({ token, role, selectedSlot, onBooked, students }) {
+export default function BookingPanel({ token, role, selectedSlot, onBooked, students, guideLabels }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [pickedStudent, setPickedStudent] = useState('')
+  const [guideType, setGuideType] = useState('standard')
+  const labels = useMemo(()=>({ A: 'Notturna', B: 'Extraurbana', C: 'Autostrada', ...(guideLabels||{}) }), [guideLabels])
 
   if (!selectedSlot) return null
 
@@ -16,7 +18,7 @@ export default function BookingPanel({ token, role, selectedSlot, onBooked, stud
       const res = await fetch(`${API}/book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-token': token },
-        body: JSON.stringify({ ...selectedSlot, student_id: role==='admin' ? pickedStudent || undefined : undefined })
+        body: JSON.stringify({ ...selectedSlot, student_id: role==='admin' ? pickedStudent || undefined : undefined, guide_type: guideType })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Errore di prenotazione')
@@ -32,6 +34,17 @@ export default function BookingPanel({ token, role, selectedSlot, onBooked, stud
     <div className="bg-white rounded-xl shadow p-4 space-y-3">
       <div className="text-sm text-gray-600">Prenotazione selezionata:</div>
       <div className="text-base font-medium">{selectedSlot.date} • {selectedSlot.start} - {selectedSlot.end}</div>
+
+      <div>
+        <label className="block text-sm text-gray-600 mb-1">Tipo di guida</label>
+        <select className="w-full border rounded-md px-3 py-2" value={guideType} onChange={(e)=>setGuideType(e.target.value)}>
+          <option value="standard">Standard</option>
+          <option value="A">{labels.A} (A)</option>
+          <option value="B">{labels.B} (B)</option>
+          <option value="C">{labels.C} (C)</option>
+        </select>
+      </div>
+
       {role === 'admin' && (
         <div>
           <label className="block text-sm text-gray-600 mb-1">Seleziona studente</label>

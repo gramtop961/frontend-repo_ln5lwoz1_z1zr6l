@@ -51,7 +51,8 @@ export default function AdminPanel({ token, refresh, onSettingsChange }) {
       smtp_port: Number(settings.smtp_port || 587),
       smtp_user: settings.smtp_user,
       smtp_password: settings.smtp_password && settings.smtp_password !== '*****' ? settings.smtp_password : undefined,
-      smtp_use_tls: Boolean(settings.smtp_use_tls)
+      smtp_use_tls: Boolean(settings.smtp_use_tls),
+      guide_labels: settings.guide_labels,
     }
     const res = await fetch(`${API}/settings`, { method:'PUT', headers: { 'Content-Type':'application/json', 'x-token': token }, body: JSON.stringify(body) })
     const data = await res.json()
@@ -95,6 +96,22 @@ export default function AdminPanel({ token, refresh, onSettingsChange }) {
               <label className="block text-sm text-gray-600">Email istruttori (separate da virgola)</label>
               <input className="mt-1 w-full border rounded-md px-3 py-2" value={(settings.instructor_emails || []).join(', ')} onChange={(e)=>setSettings({ ...settings, instructor_emails: e.target.value.split(',').map(s=>s.trim()).filter(Boolean) })} />
             </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600">Nome guida A</label>
+                <input className="mt-1 w-full border rounded-md px-3 py-2" value={settings.guide_labels?.A || ''} onChange={(e)=>setSettings({ ...settings, guide_labels: { ...(settings.guide_labels||{}), A: e.target.value } })} />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Nome guida B</label>
+                <input className="mt-1 w-full border rounded-md px-3 py-2" value={settings.guide_labels?.B || ''} onChange={(e)=>setSettings({ ...settings, guide_labels: { ...(settings.guide_labels||{}), B: e.target.value } })} />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Nome guida C</label>
+                <input className="mt-1 w-full border rounded-md px-3 py-2" value={settings.guide_labels?.C || ''} onChange={(e)=>setSettings({ ...settings, guide_labels: { ...(settings.guide_labels||{}), C: e.target.value } })} />
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm text-gray-600">SMTP Host</label>
